@@ -9,11 +9,12 @@ const MongoDBstore = require("connect-mongodb-session")(session);
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
-const MONGODB_URL = "mongodb+srv://root:root@cluster0.3turx.mongodb.net/<dbname>";
+const MONGODB_URL =
+  "mongodb+srv://root:root@cluster0.3turx.mongodb.net/<dbname>";
 const app = express();
 const store = new MongoDBstore({
   uri: MONGODB_URL,
-  collection:'sessions'
+  collection: "sessions",
 });
 
 app.set("view engine", "ejs");
@@ -26,7 +27,12 @@ const authRoutes = require("./routes/auth");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
-  session({ secret: "my secret", resave: false, saveUninitialized: false, store:store })
+  session({
+    secret: "my secret",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
 );
 
 app.use("/admin", adminRoutes);
@@ -36,22 +42,8 @@ app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
-  .connect(
-    MONGODB_URL
-  )
+  .connect(MONGODB_URL)
   .then((result) => {
-    User.findOne().then((user) => {
-      if (!user) {
-        const user = new User({
-          name: "Anna",
-          email: "anna@test.com",
-          cart: {
-            items: [],
-          },
-        });
-        user.save();
-      }
-    });
     app.listen(3000);
   })
   .catch((err) => {
